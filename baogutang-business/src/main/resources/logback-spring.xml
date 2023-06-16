@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false" scan="true" scanPeriod="1 seconds">
+    <include resource="logback-default.xml"/>
+    <contextName>logback</contextName>
+    <springProperty scope="context" name="logStore" source="spring.application.name"/>
+    <property name="log.path" value="/var/logs/${logStore}"/>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS} [%X{X-Request-Id}] [%thread] %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/app.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/%d{yyyy-MM-dd,aux}/app-%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>50MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!-- 保留最近60天的日志 -->
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date{HH:mm:ss.SSS} [%X{X-Request-Id}] [%thread] %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="asyncFileAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>10000</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="file"/>
+    </appender>
+
+    <!-- 读取配置文件信息(交由各项目指定) -->
+    <property name="active" value="${spring.profiles.active:-test}" />
+    <property name="active" value="${env:-test}" />
+    <springProperty scope="context" name="springEnv" source="spring.profiles.active" defaultValue="${active:-test}" />
+    <springProperty scope="context" name="appEnv" source="server.application.logEnv" defaultValue="${springEnv:-test}" />
+    <springProperty scope="context" name="appId" source="spring.application.name" defaultValue="localhost" />
+
+    <!--为了防止进程退出时，内存中的数据丢失，请加上此选项-->
+    <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
+
+    <!-- 外网 -->
+    <appender name="ONLINE-OUT" class="com.aliyun.openservices.log.logback.LoghubAppender">
+        <!--必选项 -->
+        <endpoint>cn-shanghai.log.aliyuncs.com</endpoint>
+        <accessKeyId>LTAI5tRN9T5Tz1QExcSpUaBc</accessKeyId>
+        <accessKey>LniIMK15XEOc6Nn5mOrtX399FkVfQd</accessKey>
+        <projectName>baogutang</projectName>
+        <logstore>${appEnv}</logstore>
+
+        <!-- 可选项 -->
+        <topic>${appId}</topic>
+        <!-- 	<source>source1</source> -->
+
+        <!-- 可选项 详见 '参数说明' -->
+        <packageTimeoutInMS>3000</packageTimeoutInMS>
+        <logsCountPerPackage>4096</logsCountPerPackage>
+        <logsBytesPerPackage>3145728</logsBytesPerPackage>
+        <memPoolSizeInByte>104857600</memPoolSizeInByte>
+        <retryTimes>3</retryTimes>
+        <maxIOThreadSizeInPool>8</maxIOThreadSizeInPool>
+
+        <!-- 可选项 设置时区 -->
+        <timeZone>Asia/Shanghai</timeZone>
+        <!-- 可选项 设置时间格式 -->
+        <timeFormat>yyyy-MM-dd HH:mm:ss.SSS</timeFormat>
+        <!-- 可选项 通过配置 encoder 的 pattern 自定义 log 的格式 -->
+        <encoder>
+            <!--        <pattern>[${appId}] %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{0}: %msg</pattern> -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{X-Request-Id}]  [%thread] %logger{0}: %msg</pattern>
+        </encoder>
+
+        <!-- 指定级别的日志(INFO,WARN,ERROR) -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <logger name="org.hibernate" level="ERROR" />
+    <logger name="org.apache" level="ERROR" />
+    <logger name="ch.qos.logback" level="WARN" />
+    <logger name="org.elasticsearch" level="ERROR" />
+    <logger name="org.mongodb.driver" level="INFO" />
+    <logger name="springfox.documentation" level="WARN" />
+    <logger name="com.aliyun.openservices.log" level="INFO" />
+    <logger name="com" level="INFO"/>
+    <logger name="top" level="INFO"/>
+    <logger name="net" level="ERROR"/>
+    <logger name="org" level="INFO"/>
+    <logger name="io" level="INFO"/>
+    <logger name="springfox" level="INFO"/>
+    <logger name="Validator" level="INFO"/>
+    <logger name="org.springframework" level="INFO"/>
+
+
+    <springProfile name="test,prod">
+        <root level="DEBUG">
+            <appender-ref ref="console"/>
+            <appender-ref ref="ONLINE-OUT"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="local">
+        <root level="DEBUG">
+            <appender-ref ref="console"/>
+            <appender-ref ref="ONLINE-OUT"/>
+        </root>
+    </springProfile>
+
+</configuration>

@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: baogutang-admin
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 42.51.4.235:8848
+      config:
+        server-addr: 42.51.4.235:8848
+        namespace: 7e44b734-781d-4c21-a524-4bad1557d95f
+        file-extension: yml
+        refresh-enabled: true
+        group: DEFAULT_GROUP
+        username: nacos
+        password: 199312
+#        shared-configs:
+#          - data-id: goods-blindbox.yml
+#            refresh: true
+
