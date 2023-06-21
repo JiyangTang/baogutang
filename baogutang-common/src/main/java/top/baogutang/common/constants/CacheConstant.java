@@ -18,4 +18,14 @@ public class CacheConstant {
      * 微信消息推送获取临时二维码缓存key
      */
     public static final String WX_MSG_PUSH_QR_CODE_PREFIX = "top:baogutang:wx:msg_push:%s:";
+
+    /**
+     * 随机验证码图片key
+     */
+    public static final String RANDOM_IMAGE_CACHE_KEY = "top:baogutang:random_image:%s:";
+
+    public static final String SYS_TOKEN = "top:baogutang:sys:user:token:";
+
+
+    public static final Integer ENABLE = 0;
 }

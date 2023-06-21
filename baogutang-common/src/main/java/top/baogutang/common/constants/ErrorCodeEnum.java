@@ -60,7 +60,15 @@ public enum ErrorCodeEnum {
     FORBIDDEN(403, "没有相关权限"),
     AUTHORIZATION_HEADER_IS_EMPTY(600, "请求头中的token为空"),
 
-    DATA_IS_NULL(81011033, "数据为空");;
+    DATA_IS_NULL(81011033, "数据为空"),
+
+    CAPTCHA_NOT_EXISTS(81011034, "验证码不存在"),
+
+    CAPTCHA_INCORRECT(81011035, "验证码错误"),
+
+    CURRENT_USER_EXISTS(81011036, "当前用户已存在"),
+
+    ;
 
     private final int code;
     private final String msg;

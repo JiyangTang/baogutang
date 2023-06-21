@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.baogutang.admin.dao.mapper.SysUserMapper">
+
+    <select id="selectByEmailOrMobile" resultType="top.baogutang.admin.dao.entity.SysUserEntity">
+        SELECT id, email, mobile
+        FROM t_sys_user
+        WHERE 1 = 1
+          AND (email = #{email,jdbcType=VARCHAR}
+            OR mobile = #{mobile,jdbcType=VARCHAR})
+
+
+    </select>
+</mapper>
