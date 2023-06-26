@@ -27,5 +27,11 @@ public class CacheConstant {
     public static final String SYS_TOKEN = "top:baogutang:sys:user:token:";
 
 
+    /**
+     * 消息推送
+     */
+    public static final String MSG_PUSH_PREFIX_KEY = "top:baogutang:msg:push:%d:";
+
+
     public static final Integer ENABLE = 0;
 }
