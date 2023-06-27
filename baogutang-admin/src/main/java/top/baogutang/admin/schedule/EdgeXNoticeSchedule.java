@@ -2,7 +2,6 @@ package top.baogutang.admin.schedule;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Component;
 import top.baogutang.admin.domain.EdgeXAnnouncementsDto;
 import top.baogutang.admin.services.IWxMsgPushService;
 import top.baogutang.admin.utils.DingTalkMsgPushUtils;
-import top.baogutang.common.constants.DingTalkMsgTypeEnum;
 import top.baogutang.common.domain.Page;
 import top.baogutang.common.domain.Results;
 import top.baogutang.common.properties.WxMsgPushProperties;
@@ -74,27 +72,10 @@ public class EdgeXNoticeSchedule {
 
         Boolean result = redisTemplate.opsForValue().setIfAbsent(cacheKey, 1, 5, TimeUnit.DAYS);
         if (Boolean.TRUE.equals(result)) {
-            dingTalkMsgPushUtils.dingTalkMsgPush(agentId, Boolean.TRUE, null, null, this.geneMsg(announcementsDto));
+            String content = "# " + announcementsDto.getTitle() + "\n\n![](" + announcementsDto.getCover() + ")\n\n> 点击下方链接查看更多详情：\n\n[查看详情](" + "https://app.edge-x.cn/#/noticeDetail?noticeId=" + announcementsDto.getId() + ")";
+            dingTalkMsgPushUtils.robotMarkdownMsgPush(announcementsDto.getTitle(), content);
 //            wxMsgPushService.msgPush(Message.CONTENT_TYPE_HTML, announcementsDto.getTitle(), announcementsDto.getContent(), wxMsgPushProperties.getTopicIds());
         }
     }
 
-    private OapiMessageCorpconversationAsyncsendV2Request.Msg geneMsg(EdgeXAnnouncementsDto announcementsDto) {
-        // 读取消息文件
-        OapiMessageCorpconversationAsyncsendV2Request.Msg msg = new OapiMessageCorpconversationAsyncsendV2Request.Msg();
-        msg.setMsgtype(DingTalkMsgTypeEnum.ACTION_CARD.getType());
-        OapiMessageCorpconversationAsyncsendV2Request.ActionCard actionCard = new OapiMessageCorpconversationAsyncsendV2Request.ActionCard();
-        // 透出到会话列表和通知的文案
-        actionCard.setTitle(announcementsDto.getTitle());
-        // 支持markdown格式的正文内容
-        String title = "# " + announcementsDto.getTitle() + "+\n\n";
-        String image = "![](" + announcementsDto.getCover() + ")";
-        actionCard.setMarkdown(title + image);
-        // 跳转按钮展示
-        actionCard.setSingleTitle("查看详情");
-        // 跳转URL
-        actionCard.setSingleUrl("https://app.edge-x.cn/#/noticeDetail?noticeId=" + announcementsDto.getId());
-        msg.setActionCard(actionCard);
-        return msg;
-    }
 }

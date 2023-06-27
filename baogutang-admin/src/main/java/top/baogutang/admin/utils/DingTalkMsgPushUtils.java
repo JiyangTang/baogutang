@@ -5,19 +5,27 @@ import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.DingTalkClient;
 import com.dingtalk.api.request.OapiGettokenRequest;
 import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
+import com.dingtalk.api.request.OapiRobotSendRequest;
 import com.dingtalk.api.response.OapiGettokenResponse;
 import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
-import com.taobao.api.ApiException;
+import com.dingtalk.api.response.OapiRobotSendResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import top.baogutang.common.constants.DingTalkMsgTypeEnum;
 import top.baogutang.common.exceptions.BusinessException;
 import top.baogutang.common.properties.DingTalkConfigFactory;
 import top.baogutang.common.properties.DingTalkConfigStrategy;
 
 import javax.annotation.Resource;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +49,12 @@ public class DingTalkMsgPushUtils {
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+
+    @Value("${dingtalk.baogutang.niko_notice_reboot}")
+    private String robotWebhookUrl;
+
+    @Value("${dingtalk.baogutang.secrect}")
+    private String secret;
 
     /**
      * 钉钉消息推送 {https://open.dingtalk.com/document/orgapp/work-notice-option}
@@ -117,6 +131,45 @@ public class DingTalkMsgPushUtils {
             log.error(">>>>>>>>>>request dingTalk gene accessToken error! request:{},errorMsg:{}<<<<<<<<<<", JSON.toJSONString(request), e.getMessage(), e);
         }
         return null;
+    }
+
+
+    public void robotMarkdownMsgPush(String title, String content) {
+        // 计算签名
+        long timestamp = System.currentTimeMillis();
+        String sign = this.sign(timestamp);
+        String url = robotWebhookUrl + "&timestamp=" + timestamp + "&sign=" + sign;
+        DingTalkClient client = new DefaultDingTalkClient(url);
+        OapiRobotSendRequest request = new OapiRobotSendRequest();
+        OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
+        at.setIsAtAll(true);
+        request.setAt(at);
+        request.setMsgtype(DingTalkMsgTypeEnum.MARKDOWN.getType());
+        OapiRobotSendRequest.Markdown markdown = new OapiRobotSendRequest.Markdown();
+        markdown.setTitle(title);
+        markdown.setText(content);
+        request.setMarkdown(markdown);
+        OapiRobotSendResponse response = null;
+        try {
+            response = client.execute(request);
+        } catch (Exception e) {
+            log.error(">>>>>>>>>>robot msg send error:{}<<<<<<<<<<", e.getMessage(), e);
+        }
+        log.info(">>>>>>>>>>robot msg send request:{}, response:{}<<<<<<<<<<", JSON.toJSONString(request), JSON.toJSONString(response));
+
+    }
+
+    private String sign(Long timestamp) {
+        try {
+            String stringToSign = timestamp + "\n" + secret;
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+            byte[] signData = mac.doFinal(stringToSign.getBytes(StandardCharsets.UTF_8));
+            return URLEncoder.encode(new String(Base64.encodeBase64(signData)), "UTF-8");
+        } catch (Exception e) {
+            log.error(">>>>>>>>>>sign error:{}<<<<<<<<<<", e.getMessage(), e);
+            return null;
+        }
     }
 
 }
