@@ -34,4 +34,9 @@ public class CacheConstant {
 
 
     public static final Integer ENABLE = 0;
+
+    /**
+     * 钉钉应用access_token缓存KEY前缀
+     */
+    public static final String PREFIX_DING_TALK_ACCESS_TOKEN = "top:baogutang:dingtalk:access_token:";
 }
