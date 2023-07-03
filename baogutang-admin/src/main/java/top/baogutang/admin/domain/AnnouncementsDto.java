@@ -11,7 +11,7 @@ import java.util.Date;
  * @date: 2023/06/16 : 12:09
  */
 @Data
-public class EdgeXAnnouncementsDto implements Serializable {
+public class AnnouncementsDto implements Serializable {
 
     private static final long serialVersionUID = 2069054276884655439L;
 

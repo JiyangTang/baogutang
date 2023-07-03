@@ -30,7 +30,7 @@ public class CacheConstant {
     /**
      * 消息推送
      */
-    public static final String MSG_PUSH_PREFIX_KEY = "top:baogutang:msg:push:%d:";
+    public static final String MSG_PUSH_PREFIX_KEY = "top:baogutang:msg:push:%s:%d:";
 
 
     public static final Integer ENABLE = 0;
