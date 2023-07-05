@@ -15,7 +15,7 @@ import top.baogutang.admin.utils.DingTalkMsgPushUtils;
 import top.baogutang.common.domain.Page;
 import top.baogutang.common.domain.Results;
 import top.baogutang.common.properties.WxMsgPushProperties;
-import top.baogutang.common.utils.HttpUtils;
+import top.baogutang.common.utils.OkHttpUtil;
 
 import javax.annotation.Resource;
 import java.util.Objects;
@@ -56,7 +56,7 @@ public class NoticeSchedule {
      */
     @Scheduled(cron = "0 0/1 * * * ? ")
     public void edgeXNotice() {
-        Results<Page<AnnouncementsDto>> results = HttpUtils.get(EDGE_X_REQUEST_URL, new TypeReference<Results<Page<AnnouncementsDto>>>() {
+        Results<Page<AnnouncementsDto>> results = OkHttpUtil.get(EDGE_X_REQUEST_URL, null, null, new TypeReference<Results<Page<AnnouncementsDto>>>() {
         });
         log.info(">>>>>>>>>>请求获取edgeX公告返回数据：{}<<<<<<<<<<", JSON.toJSONString(results));
         if (Objects.isNull(results)) {
@@ -84,8 +84,9 @@ public class NoticeSchedule {
      */
     @Scheduled(cron = "0 0/1 * * * ? ")
     public void edgeNotice() {
-        Results<Page<AnnouncementsDto>> results = HttpUtils.get(EDGE_REQUEST_URL, new TypeReference<Results<Page<AnnouncementsDto>>>() {
+        Results<Page<AnnouncementsDto>> results = OkHttpUtil.get(EDGE_REQUEST_URL, null, null, new TypeReference<Results<Page<AnnouncementsDto>>>() {
         });
+
         log.info(">>>>>>>>>>请求获取edge公告返回数据：{}<<<<<<<<<<", JSON.toJSONString(results));
         if (Objects.isNull(results)) {
             return;
