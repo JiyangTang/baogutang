@@ -47,8 +47,8 @@
     <appender name="ONLINE-OUT" class="com.aliyun.openservices.log.logback.LoghubAppender">
         <!--必选项 -->
         <endpoint>cn-shanghai.log.aliyuncs.com</endpoint>
-        <accessKeyId>LTAI5tRN9T5Tz1QExcSpUaBc</accessKeyId>
-        <accessKey>LniIMK15XEOc6Nn5mOrtX399FkVfQd</accessKey>
+        <accessKeyId>${baogutang.aliyun.sls.accessKeyId}</accessKeyId>
+        <accessKey>${baogutang.aliyun.sls.accessKey}</accessKey>
         <projectName>baogutang</projectName>
         <logstore>${appEnv}</logstore>
 
